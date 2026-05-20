@@ -1,0 +1,454 @@
+/* ═══════════════════════════════════════════════
+   style.css — Rumah Gadang 3D Viewer
+   ═══════════════════════════════════════════════ */
+
+/* ── RESET & ROOT ────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --gold:    #C9A84C;
+  --gold-lt: #E8D4A0;
+  --dark:    #0D0D0D;
+  --surface: #161410;
+  --muted:   rgba(255, 255, 255, 0.45);
+  --border:  rgba(201, 168, 76, 0.25);
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  background: var(--dark);
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  overflow: hidden;
+}
+
+/* ── NOISE GRAIN OVERLAY ─────────────────────── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.4;
+}
+
+/* ── AMBIENT GRADIENT ────────────────────────── */
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 80%, rgba(120, 70, 20, 0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 80% 20%, rgba(201, 168, 76, 0.10) 0%, transparent 70%),
+    var(--surface);
+  pointer-events: none;
+}
+
+/* ── LOADING OVERLAY ─────────────────────────── */
+#loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  background: var(--dark);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+
+#loading-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.loader-ring {
+  width: 56px;
+  height: 56px;
+  border: 2px solid var(--border);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loader-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.95rem;
+  color: var(--gold-lt);
+  letter-spacing: 0.08em;
+}
+
+.loader-sub {
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ── PROGRESS BAR ────────────────────────────── */
+.progress-bar-wrap {
+  width: 180px;
+  height: 2px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--gold);
+  width: 0%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* ── HEADER ──────────────────────────────────── */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 28px;
+  background: linear-gradient(to bottom, rgba(13, 13, 13, 0.95) 60%, transparent);
+  backdrop-filter: blur(2px);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid var(--gold);
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+}
+
+.logo-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.logo-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+  color: var(--gold-lt);
+}
+
+.badge {
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+/* ── MODEL VIEWER ────────────────────────────── */
+model-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  width: 100vw;
+  height: 100vh;
+  background: transparent;
+  --poster-color: transparent;
+}
+
+/* AR slot button (disembunyikan — trigger dari luar) */
+#ar-slot-btn {
+  display: none;
+}
+
+/* ── ROTATE HINT ─────────────────────────────── */
+.hint {
+  position: fixed;
+  top: 50%;
+  right: 20px;
+  z-index: 50;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  animation: fadeIn 1s ease 2.5s forwards;
+  pointer-events: none;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+.hint-icon {
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid var(--border);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  animation: pulse 2.5s ease infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 168, 76, 0.35); }
+  50%       { box-shadow: 0 0 0 8px rgba(201, 168, 76, 0); }
+}
+
+.hint-label {
+  font-size: 0.62rem;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* ── BOTTOM PANEL ────────────────────────────── */
+.bottom-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 20px 28px 28px;
+  background: linear-gradient(to top, rgba(13, 13, 13, 0.97) 50%, transparent);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* ── INFO BLOCK ──────────────────────────────── */
+.info-block {
+  max-width: 340px;
+  animation: fadeUp 0.8s ease 0.4s both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.info-block h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+
+.info-block h1 em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.info-block p {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+}
+
+.gold-line {
+  display: inline-block;
+  width: 32px;
+  height: 1.5px;
+  background: var(--gold);
+  margin-bottom: 8px;
+  border-radius: 2px;
+}
+
+/* ── CONTROLS ────────────────────────────────── */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-end;
+  animation: fadeUp 0.8s ease 0.6s both;
+}
+
+/* Tombol AR utama */
+.btn-ar {
+  background: var(--gold);
+  color: var(--dark);
+  border: none;
+  padding: 11px 22px;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.2s, transform 0.15s, opacity 0.2s;
+}
+
+.btn-ar:hover {
+  background: var(--gold-lt);
+  transform: translateY(-1px);
+}
+
+.btn-ar svg {
+  width: 15px;
+  height: 15px;
+}
+
+.btn-ar.hidden {
+  display: none;
+}
+
+/* Baris tombol kecil */
+.ctrl-row {
+  display: flex;
+  gap: 8px;
+}
+
+.ctrl-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+  color: var(--gold-lt);
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.ctrl-btn:hover {
+  background: rgba(201, 168, 76, 0.12);
+  border-color: var(--gold);
+}
+
+.ctrl-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.ctrl-btn.active {
+  border-color: var(--gold);
+  background: rgba(201, 168, 76, 0.1);
+}
+
+/* ── RESPONSIVE ──────────────────────────────── */
+@media (max-width: 520px) {
+  .bottom-panel {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .controls {
+    align-items: flex-start;
+  }
+
+  .hint {
+    display: none;
+  }
+}
+
+/* ── AR SLOT BUTTON (tersembunyi, trigger dari luar) ── */
+#ar-slot-btn {
+  display: none;
+}
+
+/* ── AR SCALE PANEL ──────────────────────────────────
+   Hanya tampil saat model-viewer masuk mode AR.
+   model-viewer menambahkan class "ar-mode" ke elemen
+   saat AR aktif, dan meremove saat keluar.
+────────────────────────────────────────────────────── */
+#ar-scale-panel {
+  display: none; /* disembunyikan secara default */
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(13, 13, 13, 0.88);
+  border: 1px solid rgba(201, 168, 76, 0.35);
+  border-radius: 14px;
+  padding: 12px 20px;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  backdrop-filter: blur(12px);
+  z-index: 9999;
+}
+
+/* Tampilkan panel saat AR aktif */
+:host(.ar-mode) #ar-scale-panel,
+model-viewer.ar-mode #ar-scale-panel,
+.ar-mode #ar-scale-panel {
+  display: flex;
+}
+
+/* Fallback: ditampilkan via JS saat event ar-status */
+#ar-scale-panel.visible {
+  display: flex;
+}
+
+.ar-scale-label {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.ar-scale-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ar-scale-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(201, 168, 76, 0.5);
+  background: rgba(201, 168, 76, 0.12);
+  color: #E8D4A0;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.ar-scale-btn:hover {
+  background: rgba(201, 168, 76, 0.25);
+  border-color: #C9A84C;
+}
+
+#ar-scale-val {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #C9A84C;
+  min-width: 40px;
+  text-align: center;
+}
