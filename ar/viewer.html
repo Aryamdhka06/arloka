@@ -108,36 +108,7 @@
 
   </div>
 
-  <!-- 🔥 SCRIPT DINAMIS MODEL LOADER -->
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const model = params.get("model");
-
-    const viewer = document.getElementById("viewer");
-    const loading = document.getElementById("loading-overlay");
-
-    function hideLoading() {
-      loading.style.display = "none";
-    }
-
-    if (!model) {
-      loading.innerHTML = "<h2 style='color:white'>Model tidak ditemukan</h2>";
-    } else {
-      // set path model
-      viewer.src = "../models/" + model;
-
-      // hide loading setelah model siap
-      viewer.addEventListener("load", () => {
-        setTimeout(hideLoading, 500);
-      });
-
-      // fallback kalau error
-      viewer.addEventListener("error", () => {
-        loading.innerHTML = "<h2 style='color:red'>Gagal load model</h2>";
-      });
-    }
-  </script>
-
+  <!-- Semua logic ada di main.js -->
   <script src="main.js"></script>
 </body>
 </html>
