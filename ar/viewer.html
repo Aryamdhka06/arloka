@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <title>3d AR</title>
+  <title>3D AR Viewer</title>
 
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
   <div class="ambient"></div>
 
-  <!-- Loading -->
+  <!-- LOADING -->
   <div id="loading-overlay">
     <div class="loader-ring"></div>
     <div class="loader-text">Memuat Model 3D</div>
@@ -39,7 +39,7 @@
   <!-- MODEL VIEWER -->
   <model-viewer
     id="viewer"
-    src="../../models/BangkaBelitung/rumahadat.glb"
+    src=""
     ar
     ar-modes="scene-viewer webxr quick-look"
     ar-scale="auto"
@@ -51,7 +51,6 @@
     auto-rotate
     auto-rotate-delay="1000"
     rotation-per-second="6deg"
-
 
     camera-orbit="0deg 65deg 3.5m"
     min-camera-orbit="auto auto 1.5m"
@@ -78,7 +77,7 @@
       Buka AR
     </button>
 
-    <!-- AR SCALE PANEL -->
+    <!-- SCALE PANEL -->
     <div id="ar-scale-panel">
       <span class="ar-scale-label">Ukuran Model</span>
       <div class="ar-scale-row">
@@ -92,46 +91,53 @@
 
   <!-- HINT -->
   <div class="hint">
-    <div class="hint-icon">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C9A84C"
-           stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21.5 2v6h-6M2.5 22v-6h6"/>
-        <path d="M2.66 15.57a10 10 0 1017.68-8.14"/>
-      </svg>
-    </div>
-    <span class="hint-label">Geser & Putar</span>
+    <span>Geser & Putar</span>
   </div>
 
   <!-- BOTTOM PANEL -->
   <div class="bottom-panel">
 
-    <div class="info-block">
-      <div class="gold-line"></div>
+    <button class="btn-ar" id="ar-trigger">Lihat di AR</button>
+
+    <div class="ctrl-row">
+      <button class="ctrl-btn" id="btn-reset">Reset</button>
+      <button class="ctrl-btn" id="btn-rotate">Rotate</button>
+      <button class="ctrl-btn" id="btn-zoomin">+</button>
+      <button class="ctrl-btn" id="btn-zoomout">-</button>
     </div>
 
-    <div class="controls">
-
-      <button class="btn-ar" id="ar-trigger">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8
-                   a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/>
-        </svg>
-        Lihat di AR
-      </button>
-
-      <div class="ctrl-row">
-
-        <button class="ctrl-btn" id="btn-reset">Reset</button>
-        <button class="ctrl-btn" id="btn-rotate">Rotate</button>
-        <button class="ctrl-btn" id="btn-zoomin">+</button>
-        <button class="ctrl-btn" id="btn-zoomout">-</button>
-
-      </div>
-
-    </div>
   </div>
 
-  <script src="../main.js"></script>
+  <!-- 🔥 SCRIPT DINAMIS MODEL LOADER -->
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const model = params.get("model");
+
+    const viewer = document.getElementById("viewer");
+    const loading = document.getElementById("loading-overlay");
+
+    function hideLoading() {
+      loading.style.display = "none";
+    }
+
+    if (!model) {
+      loading.innerHTML = "<h2 style='color:white'>Model tidak ditemukan</h2>";
+    } else {
+      // set path model
+      viewer.src = "../../models/" + model;
+
+      // hide loading setelah model siap
+      viewer.addEventListener("load", () => {
+        setTimeout(hideLoading, 500);
+      });
+
+      // fallback kalau error
+      viewer.addEventListener("error", () => {
+        loading.innerHTML = "<h2 style='color:red'>Gagal load model</h2>";
+      });
+    }
+  </script>
+
+  <script src="main.js"></script>
 </body>
 </html>
