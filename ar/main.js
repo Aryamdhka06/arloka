@@ -17,13 +17,15 @@ const arScaleVal   = document.getElementById('ar-scale-val');
 const params = new URLSearchParams(window.location.search);
 const model  = params.get('model');
 
-/* LOAD MODEL */
+/* LOAD MODEL — otomatis deteksi lokal vs GitHub Pages */
+const isLocal   = window.location.hostname === 'localhost' ||
+                  window.location.hostname === '127.0.0.1';
+const BASE_PATH = isLocal ? '../models/' : '/arloka/models/';
+
 if (!model) {
   overlay.innerHTML = "<h2 style='color:white'>Model tidak ditemukan</h2>";
 } else {
-  // Path disesuaikan dengan struktur GitHub Pages:
-  // https://aryamdhka06.github.io/arloka/models/...
-  viewer.src = '/arloka/models/' + model;
+  viewer.src = BASE_PATH + model;
 
   viewer.addEventListener('load', () => {
     setTimeout(() => overlay.classList.add('hidden'), 500);
