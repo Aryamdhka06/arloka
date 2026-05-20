@@ -13,22 +13,30 @@ const arScaleUp    = document.getElementById('ar-scale-up');
 const arScaleDown  = document.getElementById('ar-scale-down');
 const arScaleVal   = document.getElementById('ar-scale-val');
 
-/* ── AMBIL MODEL DARI URL ───────────────────── */
+/* AMBIL MODEL DARI URL */
 const params = new URLSearchParams(window.location.search);
 const model = params.get("model");
 
-/* kalau tidak ada model */
+/* LOAD MODEL */
 if (!model) {
   overlay.innerHTML = "<h2 style='color:white'>Model tidak ditemukan</h2>";
 } else {
-  viewer.src = "../../models/" + model;
+  viewer.src = "../models/" + model;
+
+  viewer.addEventListener('load', () => {
+    setTimeout(() => overlay.classList.add('hidden'), 500);
+  });
+
+  viewer.addEventListener('error', () => {
+    overlay.innerHTML = "<h2 style='color:red'>Gagal load model</h2>";
+  });
 }
 
-/* ── CAMERA DEFAULT ─────────────────────────── */
+/* CAMERA DEFAULT */
 const DEFAULT_ORBIT = '0deg 65deg 3.5m';
 const DEFAULT_FOV   = '35deg';
 
-/* ── AR SCALE ──────────────────────────────── */
+/* AR SCALE */
 let arScalePct = 15;
 const AR_STEP = 1;
 const AR_MIN  = 1;
@@ -50,54 +58,32 @@ arScaleDown.addEventListener('click', () => {
   applyARScale();
 });
 
-/* ── LOADING ──────────────────────────────── */
+/* LOADING */
 viewer.addEventListener('progress', (e) => {
   fill.style.width = (e.detail.totalProgress * 100) + '%';
 });
 
-viewer.addEventListener('load', () => {
-  setTimeout(() => overlay.classList.add('hidden'), 500);
-
-  if (!viewer.canActivateAR) {
-    arTrigger.classList.add('hidden');
-  }
-});
-
-viewer.addEventListener('error', () => {
-  overlay.innerHTML = "<h2 style='color:red'>Gagal load model</h2>";
-});
-
-/* ── AR BUTTON ─────────────────────────────── */
+/* AR */
 arTrigger.addEventListener('click', () => {
   viewer.activateAR();
 });
 
-/* ── AR PANEL VISIBILITY ───────────────────── */
-viewer.addEventListener('ar-status', (e) => {
-  if (e.detail.status === 'session-started') {
-    arScalePanel.classList.add('visible');
-  } else {
-    arScalePanel.classList.remove('visible');
-  }
-});
-
-/* ── RESET CAMERA ──────────────────────────── */
+/* RESET */
 btnReset.addEventListener('click', () => {
   viewer.cameraOrbit = DEFAULT_ORBIT;
   viewer.fieldOfView = DEFAULT_FOV;
   viewer.resetTurntableRotation();
 });
 
-/* ── ROTATE TOGGLE ─────────────────────────── */
+/* ROTATE */
 let rotating = true;
-
 btnRotate.addEventListener('click', () => {
   rotating = !rotating;
   viewer.autoRotate = rotating;
   btnRotate.textContent = rotating ? "Pause" : "Play";
 });
 
-/* ── ZOOM ──────────────────────────────────── */
+/* ZOOM */
 btnZoomIn.addEventListener('click', () => {
   const orb = viewer.getCameraOrbit();
   const newR = Math.max(1.5, orb.radius * 0.75);
